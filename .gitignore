@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+.pytest_cache/
+venv/
+.venv/
+env/
+ENV/
+
+# Distribution / packaging
+build/
+dist/
+*.egg
+*.whl
+
+# # Logs
+# logs/
+# *.log
+
+# Data sources and generated data
+data/
+claude-agent/
+
+# OS files
+.DS_Store

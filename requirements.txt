@@ -1,0 +1,6 @@
+openpyxl
+pandas
+pyarrow
+python-dateutil
+loguru
+pytest
