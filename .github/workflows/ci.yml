@@ -101,7 +101,7 @@ jobs:
           PY
 
       - name: Run ingestion
-        run: python ingestion/run_ingestion.py
+        run: python -m ingestion.run_ingestion
 
       - name: Run phase 2 transform
         run: python -m transform.run_transform

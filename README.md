@@ -81,6 +81,6 @@ BICA - DATA/
 ## Pipeline Flow
 
 1. Put source Excel files in `data/raw/`
-2. Run ingestion (`ingestion/run_ingestion.py`) to create parquet files in `data/landing/`
+2. Run ingestion (`python -m ingestion.run_ingestion`) to create parquet files in `data/landing/`
 3. Run transform phase 2 (`python -m transform.run_transform`) to create cleaned outputs in `data/cleaned/`
 4. Review logs in `logs/ingestion.log` and `logs/transform.log`

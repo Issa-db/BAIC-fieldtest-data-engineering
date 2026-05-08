@@ -23,3 +23,8 @@
 2026-05-08 11:31:54.950 | INFO     | __main__:run:121 -   processed:   3
 2026-05-08 11:31:54.950 | INFO     | __main__:run:122 -   quarantined: 0
 2026-05-08 11:31:54.950 | INFO     | __main__:run:123 -   skipped:     0
+2026-05-08 12:54:29.582 | INFO     | __main__:run:36 - Found 0 file(s) in data/raw
+2026-05-08 12:54:29.582 | INFO     | __main__:run:120 - ─── Ingestion run complete ───
+2026-05-08 12:54:29.582 | INFO     | __main__:run:121 -   processed:   0
+2026-05-08 12:54:29.582 | INFO     | __main__:run:122 -   quarantined: 0
+2026-05-08 12:54:29.582 | INFO     | __main__:run:123 -   skipped:     0
