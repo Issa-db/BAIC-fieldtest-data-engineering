@@ -11,7 +11,7 @@ on:
       - master
 
 jobs:
-  test:
+  tests:
     runs-on: ubuntu-latest
 
     steps:
@@ -28,5 +28,108 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Run tests
+      - name: Run ingestion tests
         run: python -m pytest ingestion/tests -q
+
+      - name: Run transform tests
+        run: python -m pytest transform/tests -q
+
+      - name: Upload test logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-logs
+          path: logs/
+          if-no-files-found: ignore
+
+  pipeline-smoke:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.11
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Create sample landing parquet inputs
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import pandas as pd
+
+          landing = Path("data/landing")
+          for folder in ["vehicle_log", "problem_log", "daily_recognition"]:
+              (landing / folder).mkdir(parents=True, exist_ok=True)
+
+          common = {
+              "source_file": "ci_sample.xlsx",
+              "vehicle_id": "V100",
+              "driver_name": "CI Driver",
+              "phase": "phase2",
+              "ingested_at": "2026-05-08T10:00:00",
+          }
+
+          vehicle = pd.DataFrame([
+              {**common, "source_row_index": 1, "raw_col_1": "03/28/2026", "raw_col_2": "Berlin", "raw_col_3": "120", "raw_col_4": "1", "raw_col_5": "5", "raw_col_6": "ok"}
+          ])
+          vehicle.to_parquet(landing / "vehicle_log" / "ci_sample.parquet", index=False)
+
+          problem = pd.DataFrame([
+              {**common, "source_row_index": 1, "raw_col_1": "03/28/2026", "raw_col_2": "08:30", "raw_col_4": "SUV", "raw_col_5": "VIN123", "raw_col_6": "speed 30 / speedometer 50", "raw_col_8": "Berlin", "raw_col_9": "urban", "raw_col_10": "5"}
+          ])
+          problem.to_parquet(landing / "problem_log" / "ci_sample.parquet", index=False)
+
+          daily_rows = [
+              {**common, "sheet_date_raw": "28.03", "source_row_index": 1, "raw_col_0": "TOTAL", "raw_col_1": None},
+              {**common, "sheet_date_raw": "28.03", "source_row_index": 2, "raw_col_1": "Total", "raw_col_2": 100, "raw_col_3": 95, "raw_col_5": 50, "raw_col_6": 45},
+              {**common, "sheet_date_raw": "28.03", "source_row_index": 3, "raw_col_1": "Urban", "raw_col_2": 30, "raw_col_3": 29, "raw_col_5": 10, "raw_col_6": 9},
+              {**common, "sheet_date_raw": "28.03", "source_row_index": 4, "raw_col_1": "Inter", "raw_col_2": 20, "raw_col_3": 18, "raw_col_5": 5, "raw_col_6": 4},
+              {**common, "sheet_date_raw": "28.03", "source_row_index": 5, "raw_col_1": "Highway", "raw_col_2": 50, "raw_col_3": 48, "raw_col_5": 35, "raw_col_6": 32},
+              {**common, "sheet_date_raw": "28.03", "source_row_index": 6},
+              {**common, "sheet_date_raw": "28.03", "source_row_index": 7},
+              {**common, "sheet_date_raw": "28.03", "source_row_index": 8},
+          ]
+          pd.DataFrame(daily_rows).to_parquet(landing / "daily_recognition" / "ci_sample.parquet", index=False)
+          PY
+
+      - name: Run ingestion
+        run: python ingestion/run_ingestion.py
+
+      - name: Run phase 2 transform
+        run: python -m transform.run_transform
+
+      - name: Verify cleaned outputs
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import pandas as pd
+
+          files = [
+              Path("data/cleaned/vehicle_log.parquet"),
+              Path("data/cleaned/problem_log.parquet"),
+              Path("data/cleaned/daily_recognition.parquet"),
+          ]
+          for f in files:
+              assert f.exists(), f"Missing expected output: {f}"
+              df = pd.read_parquet(f)
+              assert len(df) > 0, f"Output is empty: {f}"
+          print("All cleaned outputs exist and are non-empty.")
+          PY
+
+      - name: Upload pipeline logs and outputs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pipeline-logs-and-cleaned-data
+          path: |
+            logs/
+            data/cleaned/
+          if-no-files-found: ignore

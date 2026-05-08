@@ -1,15 +1,15 @@
 import pandas as pd
 from pathlib import Path
-from typing import Any, Union
+from typing import Any, Union, List, Dict
 
 
 def read_vehicle_log(
     filepath: Union[str, Path],
     sheet_name: str,
     file_metadata: dict,
-) -> list[dict]:
+) -> List[Dict]:
     df = pd.read_excel(filepath, sheet_name=sheet_name, header=None)
-    rows: list[dict] = []
+    rows: List[Dict] = []
 
     for i in range(len(df)):
         row = df.iloc[i]
@@ -35,6 +35,6 @@ def read_vehicle_log(
 def _safe(row: pd.Series, idx: int) -> Any:
     try:
         val = row.iloc[idx]
-        return None if pd.isna(val) else val
+        return None if pd.isna(val) else str(val)
     except (IndexError, TypeError):
         return None

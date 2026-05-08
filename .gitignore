@@ -23,6 +23,7 @@ dist/
 # Data sources and generated data
 data/
 claude-agent/
+docs/
 
 # OS files
 .DS_Store

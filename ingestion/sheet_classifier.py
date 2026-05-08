@@ -10,8 +10,8 @@ class SheetType(Enum):
     UNKNOWN = "unknown"
 
 
-VEHICLE_LOG_NAMES = {"车辆信息统计", "vehicle log", "vehicle information"}
-PROBLEM_LOG_NAMES = {"问题记录", "problem record", "problems"}
+VEHICLE_LOG_NAMES = {"车辆信息统计", "vehicle log", "vehicle information", "车辆信息统计(vehicle data)", "车辆信息统计(Vehicle data)"}
+PROBLEM_LOG_NAMES = {"问题记录", "problem record", "problems", "问题记录(problem description)", "问题记录(Problem Description)"}
 
 
 def classify_sheet(sheet_name: str) -> SheetType:
