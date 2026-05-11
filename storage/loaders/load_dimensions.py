@@ -1,5 +1,3 @@
-from datetime import date, timedelta
-
 import pandas as pd
 from loguru import logger
 
@@ -7,30 +5,27 @@ from loguru import logger
 def populate_dim_date(conn) -> None:
     """Generate a date dimension from 2000-01-01 to 2100-12-31."""
     conn.execute("DELETE FROM dim_date")
-
-    dates = []
-    current = date(2000, 1, 1)
-    end = date(2100, 12, 31)
-    while current <= end:
-        dates.append(
-            {
-                "date_key": current,
-                "year": current.year,
-                "month": current.month,
-                "week": current.isocalendar()[1],
-                "day_of_week": current.weekday(),
-                "month_name": current.strftime("%B"),
-                "quarter": (current.month - 1) // 3 + 1,
-                "is_weekend": current.weekday() >= 5,
-            }
-        )
-        current += timedelta(days=1)
-
-    df = pd.DataFrame(dates)
-    conn.register("dim_date_df", df)
-    conn.execute("INSERT INTO dim_date SELECT * FROM dim_date_df")
-    conn.unregister("dim_date_df")
-    logger.info(f"dim_date populated with {len(df)} rows")
+    conn.execute(
+        """
+        INSERT INTO dim_date
+        SELECT
+            d AS date_key,
+            EXTRACT(YEAR FROM d)::INTEGER AS year,
+            EXTRACT(MONTH FROM d)::INTEGER AS month,
+            STRFTIME(d, '%V')::INTEGER AS week,
+            (STRFTIME(d, '%u')::INTEGER - 1) AS day_of_week,
+            STRFTIME(d, '%B') AS month_name,
+            EXTRACT(QUARTER FROM d)::INTEGER AS quarter,
+            (STRFTIME(d, '%u')::INTEGER IN (6, 7)) AS is_weekend
+        FROM generate_series(
+            DATE '2000-01-01',
+            DATE '2100-12-31',
+            INTERVAL 1 DAY
+        ) AS t(d)
+        """
+    )
+    n = conn.execute("SELECT COUNT(*) FROM dim_date").fetchone()[0]
+    logger.info(f"dim_date populated with {n} rows")
 
 
 def upsert_dim_vehicle(conn, df: pd.DataFrame) -> None:
