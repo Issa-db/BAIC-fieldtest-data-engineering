@@ -43,7 +43,8 @@ def verify() -> None:
         
     print("\n-- Total KM total_km in all countries --")
     total = conn.execute("SELECT SUM(total_km) FROM vw_rate_by_country").fetchone()[0]
-    print(f"  {total:.0f} km")
+    total_km = 0 if total is None else round(total, 0)
+    print(f"  {total_km:.0f} km")
 
     conn.close()
 
