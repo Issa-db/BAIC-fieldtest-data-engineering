@@ -63,9 +63,18 @@ jobs:
         run: |
           python - <<'PY'
           from pathlib import Path
+          import shutil
           import pandas as pd
 
           landing = Path("data/landing")
+          cleaned = Path("data/cleaned")
+          warehouse = Path("data/warehouse")
+
+          # Keep smoke runs deterministic across reruns.
+          for p in [landing, cleaned, warehouse]:
+              if p.exists():
+                  shutil.rmtree(p)
+
           for folder in ["vehicle_log", "problem_log", "daily_recognition"]:
               (landing / folder).mkdir(parents=True, exist_ok=True)
 
@@ -124,6 +133,33 @@ jobs:
           print("All cleaned outputs exist and are non-empty.")
           PY
 
+      - name: Run phase 3 storage
+        run: python -m storage.run_storage
+
+      - name: Verify storage outputs
+        run: |
+          python -m storage.verify
+          python - <<'PY'
+          from pathlib import Path
+          import duckdb
+
+          db_file = Path("data/warehouse/isa_pipeline.duckdb")
+          assert db_file.exists(), f"Missing warehouse db: {db_file}"
+
+          conn = duckdb.connect(str(db_file), read_only=True)
+          checks = {
+              "fact_vehicle_log": "SELECT COUNT(*) FROM fact_vehicle_log",
+              "fact_problem_log": "SELECT COUNT(*) FROM fact_problem_log",
+              "fact_daily_recognition": "SELECT COUNT(*) FROM fact_daily_recognition",
+              "vw_rate_by_country": "SELECT COUNT(*) FROM vw_rate_by_country",
+          }
+          for name, sql in checks.items():
+              n = conn.execute(sql).fetchone()[0]
+              assert n > 0, f"Storage validation failed: {name} is empty"
+          conn.close()
+          print("Storage outputs exist and are queryable.")
+          PY
+
       - name: Upload pipeline logs and outputs
         if: always()
         uses: actions/upload-artifact@v4
@@ -132,4 +168,5 @@ jobs:
           path: |
             logs/
             data/cleaned/
+            data/warehouse/
           if-no-files-found: ignore
