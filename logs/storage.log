@@ -77,3 +77,23 @@
 2026-05-11 17:10:45.536 | INFO     | storage.loaders.load_marts:rebuild_marts:13 - Mart tables rebuilt
 2026-05-11 17:10:45.539 | INFO     | __main__:run:55 - Executed schema file: 04_views.sql
 2026-05-11 17:10:45.577 | INFO     | __main__:run:58 - Storage run complete
+2026-05-11 17:28:11.761 | INFO     | __main__:run:29 - Connected to DuckDB warehouse
+2026-05-11 17:28:11.780 | INFO     | __main__:run:35 - Executed schema file: 01_dimensions.sql
+2026-05-11 17:28:11.783 | INFO     | __main__:run:35 - Executed schema file: 02_facts.sql
+2026-05-11 17:28:11.825 | INFO     | storage.loaders.load_dimensions:populate_dim_date:28 - dim_date populated with 36890 rows
+2026-05-11 17:28:11.924 | INFO     | storage.loaders.load_facts:load_vehicle_log:56 - fact_vehicle_log: 1 rows loaded
+2026-05-11 17:28:11.942 | INFO     | storage.loaders.load_facts:load_problem_log:98 - fact_problem_log: 438 rows loaded
+2026-05-11 17:28:12.079 | INFO     | storage.loaders.load_facts:load_daily_recognition:155 - fact_daily_recognition: 5053 rows loaded
+2026-05-11 17:28:12.097 | INFO     | storage.loaders.load_marts:rebuild_marts:13 - Mart tables rebuilt
+2026-05-11 17:28:12.099 | INFO     | __main__:run:55 - Executed schema file: 04_views.sql
+2026-05-11 17:28:12.137 | INFO     | __main__:run:58 - Storage run complete
+2026-05-11 17:30:37.860 | INFO     | __main__:run:29 - Connected to DuckDB warehouse
+2026-05-11 17:30:37.881 | INFO     | __main__:run:35 - Executed schema file: 01_dimensions.sql
+2026-05-11 17:30:37.884 | INFO     | __main__:run:35 - Executed schema file: 02_facts.sql
+2026-05-11 17:30:37.918 | INFO     | storage.loaders.load_dimensions:populate_dim_date:28 - dim_date populated with 36890 rows
+2026-05-11 17:30:38.026 | INFO     | storage.loaders.load_facts:load_vehicle_log:56 - fact_vehicle_log: 1 rows loaded
+2026-05-11 17:30:38.043 | INFO     | storage.loaders.load_facts:load_problem_log:98 - fact_problem_log: 438 rows loaded
+2026-05-11 17:30:38.169 | INFO     | storage.loaders.load_facts:load_daily_recognition:155 - fact_daily_recognition: 5053 rows loaded
+2026-05-11 17:30:38.189 | INFO     | storage.loaders.load_marts:rebuild_marts:13 - Mart tables rebuilt
+2026-05-11 17:30:38.192 | INFO     | __main__:run:55 - Executed schema file: 04_views.sql
+2026-05-11 17:30:38.235 | INFO     | __main__:run:58 - Storage run complete

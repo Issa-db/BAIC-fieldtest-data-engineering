@@ -1,7 +1,8 @@
 from pathlib import Path
-import datetime
+import io
 
 import pandas as pd
+import pyarrow as pa
 from loguru import logger
 
 from storage.loaders.load_dimensions import (
@@ -11,35 +12,10 @@ from storage.loaders.load_dimensions import (
 )
 
 
-def _normalize_df_for_duckdb(df: pd.DataFrame) -> pd.DataFrame:
-    normalized = df.copy()
-    for col in normalized.columns:
-        series = normalized[col]
-        dtype_name = series.dtype.name
-
-        if pd.api.types.is_categorical_dtype(series.dtype):
-            normalized[col] = series.astype("string").astype(object)
-            continue
-
-        if dtype_name.startswith("string"):
-            normalized[col] = series.astype(object)
-            continue
-
-        if pd.api.types.is_object_dtype(series.dtype):
-            non_null = series.dropna()
-            if not non_null.empty and non_null.map(
-                lambda value: isinstance(value, (datetime.date, datetime.datetime))
-            ).all():
-                normalized[col] = pd.to_datetime(series, errors="coerce")
-
-    return normalized
-
-
-def _register_dataframe(conn, name: str, df: pd.DataFrame) -> None:
-    try:
-        conn.register(name, df)
-    except Exception:
-        conn.register(name, _normalize_df_for_duckdb(df))
+def _register_dataframe_via_arrow(conn, name: str, df: pd.DataFrame) -> None:
+    """Register DataFrame via PyArrow to handle all dtype variations."""
+    arrow_table = pa.Table.from_pandas(df)
+    conn.register(name, arrow_table)
 
 
 def load_vehicle_log(conn, cleaned_dir: Path) -> None:
@@ -53,7 +29,7 @@ def load_vehicle_log(conn, cleaned_dir: Path) -> None:
     upsert_dim_driver(conn, df)
     upsert_dim_country(conn, df)
 
-    _register_dataframe(conn, "vehicle_log_df", df)
+    _register_dataframe_via_arrow(conn, "vehicle_log_df", df)
     conn.execute("DELETE FROM fact_vehicle_log")
     conn.execute(
         """
@@ -91,7 +67,7 @@ def load_problem_log(conn, cleaned_dir: Path) -> None:
     upsert_dim_driver(conn, df)
     upsert_dim_country(conn, df)
 
-    _register_dataframe(conn, "problem_log_df", df)
+    _register_dataframe_via_arrow(conn, "problem_log_df", df)
     conn.execute("DELETE FROM fact_problem_log")
     conn.execute(
         """
@@ -138,7 +114,7 @@ def load_daily_recognition(conn, cleaned_dir: Path) -> None:
         df = df.assign(country=None)
     upsert_dim_country(conn, df)
 
-    _register_dataframe(conn, "daily_recognition_df", df)
+    _register_dataframe_via_arrow(conn, "daily_recognition_df", df)
     conn.execute("DELETE FROM fact_daily_recognition")
     conn.execute(
         """
