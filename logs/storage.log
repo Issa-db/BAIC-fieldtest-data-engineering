@@ -67,3 +67,13 @@
 2026-05-11 14:26:21.580 | INFO     | storage.loaders.load_marts:rebuild_marts:13 - Mart tables rebuilt
 2026-05-11 14:26:21.582 | INFO     | __main__:run:55 - Executed schema file: 04_views.sql
 2026-05-11 14:26:21.657 | INFO     | __main__:run:58 - Storage run complete
+2026-05-11 17:10:45.244 | INFO     | __main__:run:29 - Connected to DuckDB warehouse
+2026-05-11 17:10:45.261 | INFO     | __main__:run:35 - Executed schema file: 01_dimensions.sql
+2026-05-11 17:10:45.263 | INFO     | __main__:run:35 - Executed schema file: 02_facts.sql
+2026-05-11 17:10:45.289 | INFO     | storage.loaders.load_dimensions:populate_dim_date:28 - dim_date populated with 36890 rows
+2026-05-11 17:10:45.366 | INFO     | storage.loaders.load_facts:load_vehicle_log:80 - fact_vehicle_log: 1 rows loaded
+2026-05-11 17:10:45.385 | INFO     | storage.loaders.load_facts:load_problem_log:122 - fact_problem_log: 438 rows loaded
+2026-05-11 17:10:45.518 | INFO     | storage.loaders.load_facts:load_daily_recognition:179 - fact_daily_recognition: 5053 rows loaded
+2026-05-11 17:10:45.536 | INFO     | storage.loaders.load_marts:rebuild_marts:13 - Mart tables rebuilt
+2026-05-11 17:10:45.539 | INFO     | __main__:run:55 - Executed schema file: 04_views.sql
+2026-05-11 17:10:45.577 | INFO     | __main__:run:58 - Storage run complete
