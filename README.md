@@ -13,18 +13,25 @@ BICA - DATA/
 ├── claude-agent/
 ├── data/
 │   ├── raw/
-│   │   └── processed/
 │   ├── landing/
 │   │   ├── vehicle_log/
 │   │   ├── problem_log/
 │   │   └── daily_recognition/
 │   ├── cleaned/
-│   └── quarantine/
+│   ├── quarantine/
+│   └── warehouse/
+│       ├── isa_pipeline.duckdb
+│       └── schema/
+│           ├── 01_dimensions.sql
+│           ├── 02_facts.sql
+│           ├── 03_marts.sql
+│           └── 04_views.sql
 ├── docs/
-│   └── phase2-cicd-runbook.md
+│   ├── phase2-cicd-runbook.md
+│   └── phase3-storage-runbook.md
 ├── img/
 ├── ingestion/
-│   ├── __init__.py (optional)
+│   ├── __init__.py
 │   ├── filename_parser.py
 │   ├── sheet_classifier.py
 │   ├── run_ingestion.py
@@ -32,9 +39,23 @@ BICA - DATA/
 │   │   ├── vehicle_log_reader.py
 │   │   ├── problem_log_reader.py
 │   │   └── daily_recognition_reader.py
-│   ├── tests/
-│   │   └── test_filename_parser.py
+│   └── tests/
+│       └── test_filename_parser.py
 ├── logs/
+├── storage/
+│   ├── __init__.py
+│   ├── db.py
+│   ├── run_storage.py
+│   ├── verify.py
+│   ├── loaders/
+│   │   ├── load_dimensions.py
+│   │   ├── load_facts.py
+│   │   └── load_marts.py
+│   └── schema/
+│       ├── 01_dimensions.sql
+│       ├── 02_facts.sql
+│       ├── 03_marts.sql
+│       └── 04_views.sql
 ├── transform/
 │   ├── __init__.py
 │   ├── date_parser.py
@@ -43,10 +64,10 @@ BICA - DATA/
 │   ├── run_transform.py
 │   ├── tests/
 │   │   └── test_run_transform.py
-│   ├── transformers/
-│   │   ├── vehicle_log_transformer.py
-│   │   ├── problem_log_transformer.py
-│   │   └── daily_recognition_transformer.py
+│   └── transformers/
+│       ├── vehicle_log_transformer.py
+│       ├── problem_log_transformer.py
+│       └── daily_recognition_transformer.py
 ├── requirements.txt
 └── README.md
 ```
@@ -57,9 +78,8 @@ BICA - DATA/
 BICA - DATA/
 ├── data/
 │   ├── raw/
-│   │   └── processed/
-│   │       ├── <source-file-1>.xlsx
-│   │       └── <source-file-2>.xlsx
+│   │   ├── <source-file-1>.xlsx
+│   │   └── <source-file-2>.xlsx
 │   ├── landing/
 │   │   ├── vehicle_log/
 │   │   │   └── <file_stem>__<YYYYMMDDTHHMMSS>.parquet
@@ -71,11 +91,19 @@ BICA - DATA/
 │   │   ├── vehicle_log.parquet
 │   │   ├── problem_log.parquet
 │   │   └── daily_recognition.parquet
-│   └── quarantine/
-│       └── <invalid-or-unparsed-file>.xlsx
+│   ├── quarantine/
+│   │   └── <invalid-or-unparsed-file>.xlsx
+│   └── warehouse/
+│       ├── isa_pipeline.duckdb
+│       └── schema/
+│           ├── 01_dimensions.sql
+│           ├── 02_facts.sql
+│           ├── 03_marts.sql
+│           └── 04_views.sql
 └── logs/
     ├── ingestion.log
-    └── transform.log
+    ├── transform.log
+    └── storage.log
 ```
 
 ## Pipeline Flow
